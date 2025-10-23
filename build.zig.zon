@@ -10,16 +10,16 @@
     },
     .dependencies = .{
         .raylib = .{
-            .url = "https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz",
-            .hash = "raylib-5.5.0-AAAAAJkhzADZN4KFlybCxGoFRQYVt-38grcxnarFDLx8",
-        },
-        .chipmunk2d = .{
-            .url = "https://github.com/the-argus/Chipmunk2D/archive/7acd99992e3b5923005adb5dc8ef0e8cf644a92a.tar.gz",
-            .hash = "122067d624e29586e1826294138f7c4a7de84793b0e6d6f3b90100169cbfbfff8bb3",
+            .url = "https://github.com/raysan5/raylib/archive/9931ddd27a8db307c0194095e98dfeb526b1ef62.tar.gz",
+            .hash = "raylib-5.6.0-dev-whq8uLMMywTB_Oza9MgHyW-UTSkpDYBXWxb07QdX4AYA",
         },
         .compile_commands = .{
             .url = "https://github.com/the-argus/zig-compile-commands/archive/70fb439897e12cae896c071717d7c9c382918689.tar.gz",
             .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
+        },
+        .zig_box2d = .{
+            .url = "https://github.com/the-argus/zig-box2d/archive/4cd0952f068c3235077e2a8f8b4a8978c2974fdd.tar.gz",
+            .hash = "zig_box2d-3.1.1-eKW39uUUAABbjvg4W_y_WrIz6x6YeTNwpxFwJeGO6JW_",
         },
     },
 }

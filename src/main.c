@@ -1,4 +1,4 @@
-#include <chipmunk/chipmunk.h>
+#include <box2d/box2d.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
