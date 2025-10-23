@@ -1,9 +1,12 @@
 {
-  description = "Example C game project, with zig as the build system";
+  description = "Example C/C++ game project, with zig as the build system";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -31,7 +34,7 @@
               valgrind
               pkg-config
               libGL
-              zig_0_11
+              zig_0_15
             ])
             ++ (with pkgs.xorg; [
               libX11

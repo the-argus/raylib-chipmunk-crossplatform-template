@@ -1,13 +1,18 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const zcc = @import("compile_commands");
 const app_name = "example_c_game";
 
-const release_flags = [_][]const u8{ "-std=c11", "-DNDEBUG", "-DRELEASE" };
-const debug_flags = [_][]const u8{"-std=c11"};
+const release_flags = [_][]const u8{
+    "-std=c11",
+    "-DNDEBUG",
+    "-DRELEASE",
+};
 
-var chosen_flags: ?[]const []const u8 = null;
-
-const zcc = @import("compile_commands");
+const debug_flags = [_][]const u8{
+    "-std=c11",
+    "-D_DEBUG",
+};
 
 const emcc_executable = "emcc";
 
@@ -15,36 +20,25 @@ const c_sources = [_][]const u8{
     "src/main.c",
 };
 
-const Library = struct {
-    // name in build.zig
-    remote_name: []const u8,
-    // the name given to this library in its build.zig. usually in addStaticLibrary
-    artifact_name: []const u8,
-    imported: ?*std.Build.Dependency,
-
-    fn artifact(self: @This()) *std.Build.CompileStep {
-        return self.imported.?.artifact(self.artifact_name);
-    }
-};
-
-var libraries = [_]Library{
-    .{ .remote_name = "raylib", .artifact_name = "raylib", .imported = null },
-    .{ .remote_name = "chipmunk2d", .artifact_name = "chipmunk", .imported = null },
-};
-
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardOptimizeOption(.{});
+    const optimize = b.standardOptimizeOption(.{});
 
-    // keep track of any targets we create
-    var targets = std.ArrayList(*std.Build.CompileStep).init(b.allocator);
+    var targets = std.ArrayList(*std.Build.Step.Compile){};
+    var flags = std.ArrayList([]const u8){};
 
-    for (libraries, 0..) |library, index| {
-        libraries[index].imported = b.dependency(library.remote_name, .{
-            .target = target,
-            .optimize = mode,
-        });
-    }
+    const raylib_dep = b.dependency("raylib", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const chipmunk_dep = b.dependency("chipmunk2d", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const raylib = raylib_dep.artifact("raylib");
+    const chipmunk = chipmunk_dep.artifact("chipmunk");
 
     // create executable
     var exe: ?*std.Build.CompileStep = null;
@@ -54,35 +48,37 @@ pub fn build(b: *std.Build) !void {
     // initialize either lib or exe
     switch (target.getOsTag()) {
         .wasi, .emscripten => {
-            lib = b.addStaticLibrary(.{
+            lib = b.addLibrary(.{
                 .name = app_name,
-                .optimize = mode,
-                .target = target,
+                .root_module = b.createModule(.{
+                    .optimize = optimize,
+                    .target = target,
+                }),
             });
-            try targets.append(lib.?);
+            try targets.append(b.allocator, lib.?);
         },
         else => {
             exe = b.addExecutable(.{
                 .name = app_name,
-                .optimize = mode,
-                .target = target,
+                .root_module = b.createModule(.{
+                    .optimize = optimize,
+                    .target = target,
+                }),
             });
-            try targets.append(exe.?);
+            try targets.append(b.allocator, exe.?);
         },
     }
 
-    // make the targets depend on the libraries compile steps
     for (targets.items) |step| {
-        for (libraries) |library| {
-            step.linkLibrary(library.artifact());
-        }
+        step.linkLibrary(raylib);
+        step.linkLibrary(chipmunk);
     }
 
     switch (target.getOsTag()) {
         .wasi, .emscripten => {
-            const emscriptenSrc = "build/emscripten/";
-            const webOutdir = try std.fs.path.join(b.allocator, &.{ b.install_prefix, "web" });
-            const webOutFile = try std.fs.path.join(b.allocator, &.{ webOutdir, "game.html" });
+            const emscripten_src = "build/emscripten/";
+            const web_out_dir = b.pathJoin(&.{ b.install_prefix, "web" });
+            const web_out_file = b.pathJoin(&.{ web_out_dir, "game.html" });
 
             if (b.sysroot == null) {
                 std.log.err("\n\nUSAGE: Pass the '--sysroot \"$EMSDK/upstream/emscripten\"' flag.\n\n", .{});
@@ -94,20 +90,20 @@ pub fn build(b: *std.Build) !void {
             lib.?.addCSourceFiles(&c_sources, &[_][]const u8{emscripten_include_flag});
             lib.?.defineCMacro("__EMSCRIPTEN__", null);
             lib.?.defineCMacro("PLATFORM_WEB", null);
-            lib.?.addIncludePath(.{ .path = emscriptenSrc });
+            lib.?.addIncludePath(.{ .path = emscripten_src });
 
             const lib_output_include_flag = try includePrefixFlag(b.allocator, b.install_prefix);
-            const shell_file = try std.fs.path.join(b.allocator, &.{ emscriptenSrc, "minshell.html" });
+            const shell_file = try std.fs.path.join(b.allocator, &.{ emscripten_src, "minshell.html" });
             const emcc_path = try std.fs.path.join(b.allocator, &.{ b.sysroot.?, "bin", emcc_executable });
 
             const command = &[_][]const u8{
                 emcc_path,
                 "-o",
-                webOutFile,
-                emscriptenSrc ++ "entry.c",
+                web_out_file,
+                emscripten_src ++ "entry.c",
                 "-I.",
                 "-L.",
-                "-I" ++ emscriptenSrc,
+                "-I" ++ emscripten_src,
                 lib_output_include_flag,
                 "--shell-file",
                 shell_file,
@@ -143,10 +139,9 @@ pub fn build(b: *std.Build) !void {
             const emcc = b.addSystemCommand(command);
 
             // also statically link the remote libraries
-            for (libraries) |library| {
-                // link to it
-                emcc.addArtifactArg(library.artifact());
-            }
+            emcc.addArtifactArg(raylib);
+            emcc.addArtifactArg(chipmunk);
+
             // also include it
             for (zcc.extractIncludeDirsFromCompileStep(b, lib.?)) |include_dir| {
                 emcc.addArg(includeFlag(b.allocator, include_dir));
@@ -158,7 +153,7 @@ pub fn build(b: *std.Build) !void {
 
             b.getInstallStep().dependOn(&emcc.step);
 
-            std.fs.cwd().makePath(webOutdir) catch {};
+            std.fs.cwd().makePath(web_out_dir) catch {};
 
             std.log.info(
                 \\
@@ -171,13 +166,13 @@ pub fn build(b: *std.Build) !void {
                 \\
                 \\building...
             ,
-                .{ webOutdir, webOutdir },
+                .{ web_out_dir, web_out_dir },
             );
         },
         else => {
-            chosen_flags = if (mode == .Debug) &debug_flags else &release_flags;
+            try flags.appendSlice(b.allocator, if (optimize == .Debug) &debug_flags else &release_flags);
 
-            exe.?.addCSourceFiles(&c_sources, chosen_flags.?);
+            exe.?.addCSourceFiles(&c_sources, flags.items);
 
             // always link libc
             for (targets.items) |t| {
@@ -185,15 +180,20 @@ pub fn build(b: *std.Build) !void {
             }
 
             // links and includes which are shared across platforms
-            try include(targets, "src/");
+            for (targets.items) |t| {
+                t.addIncludePath("src/");
+            }
 
             // platform-specific additions
             switch (target.getOsTag()) {
                 .windows => {},
                 .macos => {},
                 .linux => {
-                    try link(targets, "GL");
-                    try link(targets, "X11");
+                    for (targets.items) |t| {
+                        t.addIncludePath("src/");
+                        t.linkSystemLibrary("GL");
+                        t.linkSystemLibrary("X11");
+                    }
                 },
                 else => {},
             }
@@ -231,24 +231,6 @@ fn includePrefixFlag(ally: std.mem.Allocator, path: []const u8) ![]const u8 {
 
 fn includeFlag(ally: std.mem.Allocator, path: []const u8) []const u8 {
     return std.fmt.allocPrint(ally, "-I{s}", .{path}) catch @panic("OOM");
-}
-
-fn include(
-    targets: std.ArrayList(*std.Build.CompileStep),
-    path: []const u8,
-) !void {
-    for (targets.items) |target| {
-        target.addIncludePath(.{ .path = path });
-    }
-}
-
-fn link(
-    targets: std.ArrayList(*std.Build.CompileStep),
-    lib: []const u8,
-) !void {
-    for (targets.items) |target| {
-        target.linkSystemLibrary(lib);
-    }
 }
 
 // Recursively unset all link objects' use_pkg_config setting

@@ -1,19 +1,25 @@
 .{
-    .name = "example-c-game-project",
+    .name = .example_c_game_project,
+    .fingerprint = 0x13f4b8fe28761374,
     .version = "0.0.1",
-
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src/",
+        "build/",
+    },
     .dependencies = .{
         .raylib = .{
-            .url = "https://github.com/raysan5/raylib/archive/e7664d5684f4b7c487d2a08645f23a1d0485f9e7.tar.gz",
-            .hash = "12203a237a96a5f37713979a57a201b4ec93f8a56e571f8584cfeb72156e4ccc14fa",
+            .url = "https://github.com/raysan5/raylib/archive/refs/tags/5.5.tar.gz",
+            .hash = "raylib-5.5.0-AAAAAJkhzADZN4KFlybCxGoFRQYVt-38grcxnarFDLx8",
         },
         .chipmunk2d = .{
             .url = "https://github.com/the-argus/Chipmunk2D/archive/7acd99992e3b5923005adb5dc8ef0e8cf644a92a.tar.gz",
             .hash = "122067d624e29586e1826294138f7c4a7de84793b0e6d6f3b90100169cbfbfff8bb3",
         },
         .compile_commands = .{
-            .url = "https://github.com/the-argus/zig-compile-commands/archive/2b1e6b25716704fdaf8a46c94ac6a8a7ab4d3fba.tar.gz",
-            .hash = "122025e344ca9c36aa86e555dbdb5dfc668f3dc557f2421ceee653f2231f27d84546",
+            .url = "https://github.com/the-argus/zig-compile-commands/archive/70fb439897e12cae896c071717d7c9c382918689.tar.gz",
+            .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
         },
-    }
+    },
 }
