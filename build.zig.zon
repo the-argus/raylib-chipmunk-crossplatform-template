@@ -14,8 +14,8 @@
             .hash = "raylib-5.6.0-dev-whq8uLMMywTB_Oza9MgHyW-UTSkpDYBXWxb07QdX4AYA",
         },
         .compile_commands = .{
-            .url = "https://github.com/the-argus/zig-compile-commands/archive/70fb439897e12cae896c071717d7c9c382918689.tar.gz",
-            .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
+            .url = "https://github.com/the-argus/zig-compile-commands/archive/f74e2d13e43fafab3a71e19557a0e1cfbf0f2e1b.tar.gz",
+            .hash = "zig_compile_commands-0.0.1-OZg5-a3CAACM-h32Kjb1obTMqrKGs9YoDhorVZ8-LGle",
         },
         .zig_box2d = .{
             .url = "https://github.com/the-argus/zig-box2d/archive/8ab8597d6b2725d40c84c4254642d1f354e658c1.tar.gz",
