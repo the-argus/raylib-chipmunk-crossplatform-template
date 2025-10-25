@@ -1,7 +1,7 @@
-#include <box2d/box2d.h>
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
+#include <box2d/box2d.h>
 #include <raylib.h>
 #include <stdio.h>
 #include <math.h>
@@ -35,8 +35,22 @@ void init()
 	SetConfigFlags(FLAG_MSAA_4X_HINT);
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Raylib/Chipmunk Example Project");
 	SetTargetFPS(60);
-    cpSpace* space = cpSpaceNew();
-    cpSpaceInit(space);
+
+	b2WorldDef world_def = b2DefaultWorldDef();
+	world_def.gravity = (b2Vec2){.x = 0, .y = -1};
+	b2WorldId world = b2CreateWorld(&world_def);
+
+	b2BodyDef ground_body_def = b2DefaultBodyDef();
+	ground_body_def.position = (b2Vec2){.x = 0, .y = 0};
+	b2BodyId ground = b2CreateBody(world, &ground_body_def);
+
+	// add shape to ground body
+	b2Polygon ground_box = b2MakeBox(50, 10);
+	b2ShapeDef ground_shape_def = b2DefaultShapeDef();
+
+	b2CreatePolygonShape(ground, &ground_shape_def, &ground_box);
+
+	b2DestroyWorld(world);
 }
 
 void update()
