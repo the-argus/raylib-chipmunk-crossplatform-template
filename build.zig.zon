@@ -18,8 +18,8 @@
             .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
         },
         .zig_box2d = .{
-            .url = "https://github.com/the-argus/zig-box2d/archive/4cd0952f068c3235077e2a8f8b4a8978c2974fdd.tar.gz",
-            .hash = "zig_box2d-3.1.1-eKW39uUUAABbjvg4W_y_WrIz6x6YeTNwpxFwJeGO6JW_",
+            .url = "https://github.com/the-argus/zig-box2d/archive/8ab8597d6b2725d40c84c4254642d1f354e658c1.tar.gz",
+            .hash = "zig_box2d-3.1.1-eKW39o4UAADWtlaHQylt1ARZ5DTF21gd3caRkWPCLSJg",
         },
     },
 }
