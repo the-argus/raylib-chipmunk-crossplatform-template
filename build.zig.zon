@@ -18,8 +18,12 @@
             .hash = "zig_compile_commands-0.0.1-OZg5-a3CAACM-h32Kjb1obTMqrKGs9YoDhorVZ8-LGle",
         },
         .zig_box2d = .{
-            .url = "https://github.com/the-argus/zig-box2d/archive/8ab8597d6b2725d40c84c4254642d1f354e658c1.tar.gz",
-            .hash = "zig_box2d-3.1.1-eKW39o4UAADWtlaHQylt1ARZ5DTF21gd3caRkWPCLSJg",
+            .url = "https://github.com/the-argus/zig-box2d/archive/ab72f2f509869a4a269468fe57de7f05c805d251.tar.gz",
+            .hash = "zig_box2d-3.1.1-eKW39goYAACnoZpjty7Mc1FwdWJHN5Af0O6OA2oGSXkE",
+        },
+        .zemscripten = .{
+            .url = "git+https://github.com/the-argus/zemscripten#522e10d54b0628751dac1480132a57a196003f29",
+            .hash = "zemscripten-0.2.0-dev-sRlDqNNZAABhslfXnf1o6XwfuR4H6gp0rYBS90pnuXtB",
         },
     },
 }

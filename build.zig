@@ -1,6 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const zcc = @import("compile_commands");
+const zemscripten = @import("zemscripten");
 const app_name = "example_c_game";
 
 const release_flags = [_][]const u8{
@@ -13,8 +14,6 @@ const debug_flags = [_][]const u8{
     "-std=c11",
     "-D_DEBUG",
 };
-
-const emcc_executable = "emcc";
 
 const c_sources = [_][]const u8{
     "src/main.c",
@@ -35,6 +34,8 @@ pub fn build(b: *std.Build) !void {
     const box2d_dep = b.dependency("zig_box2d", .{
         .target = target,
         .optimize = optimize,
+        // raylib will provide emsdk for everyone
+        .emsdk_absolute_path = zemscripten.getEmsdkPathFromBuilder(raylib_dep.builder),
     });
 
     const raylib = raylib_dep.artifact("raylib");
