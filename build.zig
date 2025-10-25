@@ -92,6 +92,11 @@ pub fn build(b: *std.Build) !void {
                 t.linkLibC();
             }
 
+            // disable LLD because I develop on nixos and something with their x11 libs caused errors with lld
+            exe.?.use_lld = false;
+            raylib.use_lld = false;
+            box2d.use_lld = false;
+
             // links and includes which are shared across platforms
             for (targets.items) |t| {
                 t.addIncludePath(b.path("src/"));
